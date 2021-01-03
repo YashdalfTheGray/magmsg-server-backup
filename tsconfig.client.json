@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["client/**/*"],
+  "exclude": ["server/**/*", "docs/**/*"],
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext", "DOM.Iterable"]
+  }
+}
