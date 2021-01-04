@@ -1,21 +1,20 @@
 import { RequestHandler } from 'express';
 
-const checkAuthToken: RequestHandler = (req, res, next) => {
-  if (!process.env.HUE_REMOTE_TOKEN) {
+export type AuthMiddlewareProvider = (authToken: string) => RequestHandler;
+
+const checkAuthToken: AuthMiddlewareProvider = (givenAuthToken) => (
+  req,
+  res,
+  next
+) => {
+  if (!givenAuthToken) {
     res.status(500).json({
       success: false,
       code: 500,
       reason: 'Internal server error',
     });
-  } else if (
-    req.method === 'POST' &&
-    req.body.accessToken &&
-    process.env.HUE_REMOTE_TOKEN
-  ) {
-    if (
-      req.body.accessToken.toLowerCase() ===
-      process.env.HUE_REMOTE_TOKEN.toLowerCase()
-    ) {
+  } else if (req.method === 'POST' && req.body.accessToken && givenAuthToken) {
+    if (req.body.accessToken.toLowerCase() === givenAuthToken.toLowerCase()) {
       next();
     } else {
       res.status(403).json({
@@ -34,13 +33,13 @@ const checkAuthToken: RequestHandler = (req, res, next) => {
         code: 401,
         reason: 'Malformed auth header',
       });
-    } else if (authToken !== process.env.HUE_REMOTE_TOKEN.toLowerCase()) {
+    } else if (authToken !== givenAuthToken.toLowerCase()) {
       res.status(403).json({
         success: false,
         code: 403,
         reason: 'Not authorized',
       });
-    } else if (authToken === process.env.HUE_REMOTE_TOKEN.toLowerCase()) {
+    } else if (authToken === givenAuthToken.toLowerCase()) {
       next();
     }
   } else {
@@ -51,3 +50,5 @@ const checkAuthToken: RequestHandler = (req, res, next) => {
     });
   }
 };
+
+export { checkAuthToken };
