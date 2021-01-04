@@ -1,19 +1,20 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 
-export interface DynamoDbClientConfig {
-  accessKeyId: string;
-  secretAccessKey: string;
-  sessionToken: string;
-  region: string;
-}
+const getCredsFromEnvironment = () =>
+  getCreds(
+    process.env.AWS_ACCESS_KEY_ID || '',
+    process.env.AWS_SECRET_ACCESS_KEY || '',
+    process.env.AWS_ROLE_ARN || '',
+    process.env.EXTERNAL_ID || ''
+  );
 
 const getCreds = async (
   accessKeyId: string,
   secretAccessKey: string,
-  externalId: string,
   roleArn: string,
-  region = 'us-east-2'
+  externalId: string,
+  region = process.env.AWS_REGION || 'us-east-2'
 ) => {
   try {
     const stsClient = new STSClient({
@@ -43,15 +44,24 @@ const getCreds = async (
   }
 };
 
-const getDynamoDbClient = ({ region, ...creds }: DynamoDbClientConfig) => {
+const getDynamoDbClient = (
+  accessKeyId: string,
+  secretAccessKey: string,
+  sessionToken: string,
+  region: string = process.env.AWS_REGION || 'us-east-2'
+) => {
   try {
     return new DynamoDBClient({
       region,
-      credentials: creds,
+      credentials: {
+        accessKeyId,
+        secretAccessKey,
+        sessionToken,
+      },
     });
   } catch (e) {
     throw e;
   }
 };
 
-export { getCreds, getDynamoDbClient };
+export { getCreds, getCredsFromEnvironment, getDynamoDbClient };
