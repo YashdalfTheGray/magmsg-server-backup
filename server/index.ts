@@ -6,30 +6,52 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import chalk from 'chalk';
 
+import { checkAuthToken } from './auth';
 import { wrap } from './utils';
 import { getMessage, putMessage } from './middlewares';
+import { getCredsFromEnvironment, getDynamoDbClient } from './sdk';
 
-dotenv.config();
+async () => {
+  dotenv.config();
 
-const port = process.env.PORT || process.argv[2] || 8080;
-const app = express();
-const apiRouter = express.Router();
+  const { PORT, USER_ACCESS_TOKEN, AWS_DYNAMO_DB_TABLE_NAME } = process.env;
 
-app.use(bodyParser.json());
-app.use(morgan('common'));
-app.use(express.static(resolve('public')));
+  const port = PORT || process.argv[2] || 8080;
+  const app = express();
+  const apiRouter = express.Router();
 
-apiRouter.get('/', (_, res) => {
-  res.json({
-    status: 'okay',
+  app.use(bodyParser.json());
+  app.use(morgan('common'));
+  app.use(express.static(resolve('public')));
+
+  const creds = await getCredsFromEnvironment();
+  app.locals.client = getDynamoDbClient(
+    creds.accessKeyId || '',
+    creds.secretAccessKey || '',
+    creds.sessionToken || ''
+  );
+  app.locals.expiration = creds.expiration || new Date();
+
+  apiRouter.get('/', (_, res) => {
+    res.json({
+      status: 'okay',
+    });
   });
-});
-apiRouter.get('/messages/:messageId', wrap(getMessage));
-apiRouter.put('/messages', wrap(putMessage));
+  apiRouter.get(
+    '/messages/:messageId',
+    checkAuthToken(USER_ACCESS_TOKEN || ''),
+    wrap(getMessage(AWS_DYNAMO_DB_TABLE_NAME || 'messages'))
+  );
+  apiRouter.put(
+    '/messages',
+    checkAuthToken(USER_ACCESS_TOKEN || ''),
+    wrap(putMessage(AWS_DYNAMO_DB_TABLE_NAME || 'messages'))
+  );
 
-app.use('/api', apiRouter);
+  app.use('/api', apiRouter);
 
-app.listen(port, () =>
-  // tslint:disable-next-line
-  console.log(`Server running on port ${chalk.green(port)}`)
-);
+  app.listen(port, () =>
+    // tslint:disable-next-line
+    console.log(`Server running on port ${chalk.green(port)}`)
+  );
+};
