@@ -4,7 +4,14 @@
   "description": "A backup server in Node.js so that I can get things done quickly.",
   "main": "dist/index.js",
   "scripts": {
-    "start": "ts-node server/index.ts",
+    "server-dev": "NODE_ENV=development ts-node --project tsconfig.server.json server/index.ts",
+    "clean": "npx rimraf dist",
+    "preserver-prod": "npm run clean",
+    "server-prod": "tsc --project tsconfig.server.json",
+    "prestart-prod": "npm run server-prod",
+    "start-prod": "NODE_ENV=production node dist/server/index.js",
+    "start-dev": "npm run server-dev",
+    "start": "npm run start-dev",
     "test": "npm start"
   },
   "repository": {
@@ -21,6 +28,7 @@
   },
   "homepage": "https://github.com/YashdalfTheGray/magmsg-server-backup#readme",
   "devDependencies": {
+    "@aws-sdk/types": "^3.1.0",
     "prettier": "^2.2.1",
     "ts-node": "^9.1.1",
     "tslint": "^6.1.3",
