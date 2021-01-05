@@ -11,6 +11,7 @@
     "prestart-prod": "npm run server-prod",
     "start-prod": "NODE_ENV=production node dist/server/index.js",
     "start-dev": "npm run server-dev",
+    "start-docker": "NODE_ENV=production node dist/server/index.js",
     "start": "npm run start-dev",
     "test": "npm start"
   },
