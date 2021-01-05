@@ -1,11 +1,11 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist/",
+    "outDir": "dist/server",
     "module": "commonjs",
     "allowJs": true,
     "lib": ["ESNext"]
   },
   "include": ["server/**/*"],
-  "exclude": ["client/**/*", "docs/**/*"]
+  "exclude": ["client/**/*"]
 }
