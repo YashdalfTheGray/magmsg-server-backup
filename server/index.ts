@@ -8,10 +8,10 @@ import chalk from 'chalk';
 
 import { checkAuthToken } from './auth';
 import { wrap } from './utils';
-import { getMessage, putMessage } from './middlewares';
+import { getMessageHandler, putMessageHandler } from './middlewares';
 import { getCredsFromEnvironment, getDynamoDbClient } from './sdk';
 
-async () => {
+(async () => {
   dotenv.config();
 
   const { PORT, USER_ACCESS_TOKEN, AWS_DYNAMO_DB_TABLE_NAME } = process.env;
@@ -40,12 +40,12 @@ async () => {
   apiRouter.get(
     '/messages/:messageId',
     checkAuthToken(USER_ACCESS_TOKEN || ''),
-    wrap(getMessage(AWS_DYNAMO_DB_TABLE_NAME || 'messages'))
+    wrap(getMessageHandler(AWS_DYNAMO_DB_TABLE_NAME || 'messages'))
   );
   apiRouter.put(
     '/messages',
     checkAuthToken(USER_ACCESS_TOKEN || ''),
-    wrap(putMessage(AWS_DYNAMO_DB_TABLE_NAME || 'messages'))
+    wrap(putMessageHandler(AWS_DYNAMO_DB_TABLE_NAME || 'messages'))
   );
 
   app.use('/api', apiRouter);
@@ -54,4 +54,4 @@ async () => {
     // tslint:disable-next-line
     console.log(`Server running on port ${chalk.green(port)}`)
   );
-};
+})();
