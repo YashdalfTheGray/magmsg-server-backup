@@ -4,6 +4,7 @@
   "description": "A backup server in Node.js so that I can get things done quickly.",
   "main": "dist/index.js",
   "scripts": {
+    "postinstall": "npm run server-prod",
     "server-dev": "NODE_ENV=development ts-node --project tsconfig.server.json server/index.ts",
     "clean": "npx rimraf dist",
     "preserver-prod": "npm run clean",
