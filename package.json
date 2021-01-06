@@ -28,6 +28,9 @@
     "url": "https://github.com/YashdalfTheGray/magmsg-server-backup/issues"
   },
   "homepage": "https://github.com/YashdalfTheGray/magmsg-server-backup#readme",
+  "engines": {
+    "node": "14.x"
+  },
   "devDependencies": {
     "@aws-sdk/types": "^3.1.0",
     "prettier": "^2.2.1",
