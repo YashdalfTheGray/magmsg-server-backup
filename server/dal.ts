@@ -3,6 +3,7 @@ import {
   DynamoDBClient,
   GetItemCommand,
   PutItemCommand,
+  ScanCommand,
 } from '@aws-sdk/client-dynamodb';
 import * as uuid from 'uuid';
 
@@ -24,6 +25,20 @@ const getMessageById = async (
 
   if (result.Item) {
     return parseDynamoDbItem(result.Item);
+  }
+};
+
+const getAllMessages = async (client: DynamoDBClient, tableName: string) => {
+  const result = await client.send(
+    new ScanCommand({
+      TableName: tableName,
+    })
+  );
+
+  if (result.Count && result.Count > 0) {
+    return result.Items?.map((item) => parseDynamoDbItem(item));
+  } else {
+    return [];
   }
 };
 
@@ -56,4 +71,4 @@ const parseDynamoDbItem = (item: { [key: string]: AttributeValue }) =>
     return acc;
   }, {});
 
-export { getMessageById, putMessage };
+export { getMessageById, getAllMessages, putMessage };
