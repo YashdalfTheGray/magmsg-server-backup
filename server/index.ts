@@ -8,7 +8,11 @@ import chalk from 'chalk';
 
 import { checkAuthToken } from './auth';
 import { wrap } from './utils';
-import { getMessageHandler, putMessageHandler } from './middlewares';
+import {
+  getAllMessagesHandler,
+  getMessageHandler,
+  putMessageHandler,
+} from './middlewares';
 import { getCredsFromEnvironment, getDynamoDbClient } from './sdk';
 
 (async () => {
@@ -41,6 +45,11 @@ import { getCredsFromEnvironment, getDynamoDbClient } from './sdk';
     '/messages/:messageId',
     checkAuthToken(USER_ACCESS_TOKEN || ''),
     wrap(getMessageHandler(AWS_DYNAMO_DB_TABLE_NAME || 'messages'))
+  );
+  apiRouter.get(
+    '/messages',
+    checkAuthToken(USER_ACCESS_TOKEN || ''),
+    wrap(getAllMessagesHandler(AWS_DYNAMO_DB_TABLE_NAME || 'messages'))
   );
   apiRouter.put(
     '/messages',

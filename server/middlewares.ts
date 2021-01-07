@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { getCredsFromEnvironment, getDynamoDbClient } from './sdk';
 import { getMessageById, getAllMessages, putMessage } from './dal';
 
-const getMessagesHandler = (TableName: string) => async (
+const getAllMessagesHandler = (TableName: string) => async (
   req: Request,
   res: Response
 ) => {
@@ -69,4 +69,4 @@ const putMessageHandler = (tableName: string) => async (
   res.sendStatus(201);
 };
 
-export { getMessageHandler, putMessageHandler };
+export { getAllMessagesHandler, getMessageHandler, putMessageHandler };
