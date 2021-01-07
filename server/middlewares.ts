@@ -17,7 +17,11 @@ const getAllMessagesHandler = (TableName: string) => async (
     req.app.locals.expiration = newCreds.expiration || new Date();
   }
 
-  const items = await getAllMessages(req.app.locals.client, TableName);
+  const items = await getAllMessages(
+    req.app.locals.client,
+    TableName,
+    req.query.fields?.toString()
+  );
 
   res.json(items);
 };

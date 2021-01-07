@@ -7,38 +7,50 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import * as uuid from 'uuid';
 
-const getMessageById = async (
+const getAllMessages = async (
   client: DynamoDBClient,
   tableName: string,
-  messageId: string
+  fieldsToGetCsv?: string
 ) => {
-  const result = await client.send(
-    new GetItemCommand({
-      TableName: tableName,
-      Key: {
-        messageId: {
-          S: messageId,
-        },
-      },
-    })
-  );
+  const command = new ScanCommand({
+    TableName: tableName,
+  });
 
-  if (result.Item) {
-    return parseDynamoDbItem(result.Item);
+  if (fieldsToGetCsv) {
+    command.input.ProjectionExpression = fieldsToGetCsv;
   }
-};
-
-const getAllMessages = async (client: DynamoDBClient, tableName: string) => {
-  const result = await client.send(
-    new ScanCommand({
-      TableName: tableName,
-    })
-  );
+  const result = await client.send(command);
 
   if (result.Count && result.Count > 0) {
     return result.Items?.map((item) => parseDynamoDbItem(item));
   } else {
     return [];
+  }
+};
+
+const getMessageById = async (
+  client: DynamoDBClient,
+  tableName: string,
+  messageId: string,
+  fieldsToGetCsv?: string
+) => {
+  const command = new GetItemCommand({
+    TableName: tableName,
+    Key: {
+      messageId: {
+        S: messageId,
+      },
+    },
+  });
+
+  if (fieldsToGetCsv) {
+    command.input.ProjectionExpression = fieldsToGetCsv;
+  }
+
+  const result = await client.send(command);
+
+  if (result.Item) {
+    return parseDynamoDbItem(result.Item);
   }
 };
 
